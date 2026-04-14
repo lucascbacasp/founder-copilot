@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { useI18n } from '@/lib/i18n';
 
 interface Memory {
   id: string;
@@ -11,17 +12,6 @@ interface Memory {
   summary: string;
   updated_at: string;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  hypothesis: 'Hipótesis',
-  validation: 'Validación',
-  metric: 'Métrica',
-  competitor: 'Competidor',
-  experiment: 'Experimento',
-  decision: 'Decisión',
-  milestone: 'Hito',
-  risk: 'Riesgo',
-};
 
 const CATEGORY_COLORS: Record<string, string> = {
   hypothesis: 'bg-purple-500/15 text-purple-400',
@@ -35,8 +25,20 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function MemoryPanel({ memories: initialMemories }: { memories: Memory[] }) {
+  const { t, locale } = useI18n();
   const [memories, setMemories] = useState(initialMemories);
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  const categoryLabels: Record<string, string> = {
+    hypothesis: t.memoryCategories.hypothesis,
+    validation: t.memoryCategories.validation,
+    metric: t.memoryCategories.metric,
+    competitor: t.memoryCategories.competitor,
+    experiment: t.memoryCategories.experiment,
+    decision: t.memoryCategories.decision,
+    milestone: t.memoryCategories.milestone,
+    risk: t.memoryCategories.risk,
+  };
 
   async function handleDelete(memoryId: string) {
     setDeleting(memoryId);
@@ -56,7 +58,7 @@ export function MemoryPanel({ memories: initialMemories }: { memories: Memory[] 
     return (
       <div className="rounded-xl border border-zinc-800 p-5">
         <p className="text-sm text-zinc-500">
-          El copiloto todavía no guardó información. Se llena automáticamente durante las conversaciones.
+          {t.settings.memory.empty}
         </p>
       </div>
     );
@@ -76,10 +78,10 @@ export function MemoryPanel({ memories: initialMemories }: { memories: Memory[] 
                   'text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full',
                   CATEGORY_COLORS[mem.category] || 'bg-zinc-700 text-zinc-400'
                 )}>
-                  {CATEGORY_LABELS[mem.category] || mem.category}
+                  {categoryLabels[mem.category] || mem.category}
                 </span>
                 <span className="text-[10px] text-zinc-600">
-                  {new Date(mem.updated_at).toLocaleDateString('es-AR')}
+                  {new Date(mem.updated_at).toLocaleDateString(locale === 'es' ? 'es-AR' : 'en-US')}
                 </span>
               </div>
               <p className="text-sm text-zinc-300">{mem.summary}</p>
@@ -88,7 +90,7 @@ export function MemoryPanel({ memories: initialMemories }: { memories: Memory[] 
               onClick={() => handleDelete(mem.id)}
               disabled={deleting === mem.id}
               className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all p-1"
-              title="Eliminar"
+              title={t.settings.memory.deleteTitle}
             >
               {deleting === mem.id ? (
                 <span className="text-xs text-zinc-500">...</span>

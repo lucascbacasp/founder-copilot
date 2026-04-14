@@ -5,6 +5,7 @@ import { MessageBubble } from './MessageBubble';
 import { ModeSelector, type Mode } from './ModeSelector';
 import { ToolCallBadge } from './ToolCallBadge';
 import { ArtifactCard } from './ArtifactCard';
+import { useI18n } from '@/lib/i18n';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -50,6 +51,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(conversationId || null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -212,7 +214,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
     } catch {
       setItems((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Error: no se pudo conectar con el agente. Intenta de nuevo.' },
+        { role: 'assistant', content: t.chat.errorConnect },
       ]);
     } finally {
       setIsLoading(false);
@@ -224,11 +226,11 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
       <div className="flex flex-col items-center justify-center h-full p-6 md:p-8">
         {journeyStep && (
           <div className="mb-4 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
-            <p className="text-xs text-indigo-400 font-medium">Paso del journey: {journeyStep.charAt(0).toUpperCase() + journeyStep.slice(1)}</p>
+            <p className="text-xs text-indigo-400 font-medium">{t.chat.journeyStep} {journeyStep.charAt(0).toUpperCase() + journeyStep.slice(1)}</p>
           </div>
         )}
-        <h2 className="text-xl font-bold text-white mb-2">Elegí un modo</h2>
-        <p className="text-sm text-zinc-400 mb-6">Cada modo adapta al agente para un objetivo distinto</p>
+        <h2 className="text-xl font-bold text-white mb-2">{t.chat.selectMode}</h2>
+        <p className="text-sm text-zinc-400 mb-6">{t.chat.selectModeDesc}</p>
         <ModeSelector
           selected={mode}
           onSelect={setMode}
@@ -240,7 +242,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-xs">
-            Seguí el <a href="/" className="text-indigo-400 hover:text-indigo-300 underline">camino del dashboard</a> para el orden recomendado
+            {t.chat.tip} <a href="/" className="text-indigo-400 hover:text-indigo-300 underline">{t.chat.tipLink}</a> {t.chat.tipSuffix}
           </p>
         </div>
       </div>
@@ -253,7 +255,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
         {items.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-zinc-500 text-sm">
-              Conta tu idea y el copiloto te va a ayudar a validarla.
+              {t.chat.emptyChat}
             </p>
           </div>
         )}
@@ -290,7 +292,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Guardado: {item.summary}
+                  {t.chat.savedMemory} {item.summary}
                 </div>
               </div>
             );
@@ -320,7 +322,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Describe tu idea, pregunta o pedile algo al agente..."
+            placeholder={t.chat.inputPlaceholder}
             className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             disabled={isLoading}
           />
@@ -329,7 +331,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
             disabled={isLoading || !input.trim()}
             className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Enviar
+            {t.chat.send}
           </button>
         </form>
       </div>

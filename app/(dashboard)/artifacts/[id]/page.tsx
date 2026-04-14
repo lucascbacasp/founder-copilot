@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { ARTIFACT_TYPE_LABELS } from '@/lib/constants/artifact-types';
+import { useI18n } from '@/lib/i18n';
 
 interface Artifact {
   id: string;
@@ -16,6 +16,7 @@ interface Artifact {
 export default function ArtifactDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { t } = useI18n();
   const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,9 +49,9 @@ export default function ArtifactDetailPage() {
   if (!artifact) {
     return (
       <div className="p-8 max-w-4xl">
-        <p className="text-zinc-500">Artefacto no encontrado.</p>
+        <p className="text-zinc-500">{t.artifactsPage.notFound}</p>
         <button onClick={() => router.push('/artifacts')} className="text-indigo-400 text-sm mt-2 hover:underline">
-          Volver a artefactos
+          {t.artifactsPage.backToArtifacts}
         </button>
       </div>
     );
@@ -62,12 +63,12 @@ export default function ArtifactDetailPage() {
         onClick={() => router.push('/artifacts')}
         className="text-sm text-zinc-500 hover:text-zinc-300 mb-6 flex items-center gap-1 transition-colors"
       >
-        <span>&larr;</span> Volver a artefactos
+        <span>&larr;</span> {t.artifactsPage.backToArtifacts}
       </button>
 
       <div className="mb-4 flex items-center gap-3">
         <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-400">
-          {ARTIFACT_TYPE_LABELS[artifact.type] || artifact.type}
+          {t.artifactTypes[artifact.type as keyof typeof t.artifactTypes] || artifact.type}
         </span>
         <span className="text-xs text-zinc-500">
           {new Date(artifact.created_at).toLocaleDateString('es-AR', {
@@ -81,18 +82,20 @@ export default function ArtifactDetailPage() {
       <h1 className="text-2xl font-bold text-white mb-6">{artifact.title}</h1>
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <ArtifactContent type={artifact.type} content={artifact.content} />
+        <ArtifactContent type={artifact.type} content={artifact.content} t={t} />
       </div>
     </div>
   );
 }
 
-function ArtifactContent({ type, content }: { type: string; content: Record<string, unknown> }) {
+type Translations = ReturnType<typeof useI18n>['t'];
+
+function ArtifactContent({ type, content, t }: { type: string; content: Record<string, unknown>; t: Translations }) {
   switch (type) {
     case 'scorecard':
-      return <ScorecardView content={content} />;
+      return <ScorecardView content={content} t={t} />;
     case 'bmc':
-      return <BmcView content={content} />;
+      return <BmcView content={content} t={t} />;
     case 'financial_model':
       return <FinancialModelView content={content} />;
     case 'experiment_roadmap':
@@ -115,7 +118,7 @@ function ArtifactContent({ type, content }: { type: string; content: Record<stri
 }
 
 /* ---------- Scorecard ---------- */
-function ScorecardView({ content }: { content: Record<string, unknown> }) {
+function ScorecardView({ content, t }: { content: Record<string, unknown>; t: Translations }) {
   const c = content as {
     overall_score?: number;
     verdict?: string;
@@ -137,7 +140,7 @@ function ScorecardView({ content }: { content: Record<string, unknown> }) {
       )}
       {c.dimensions && (
         <div>
-          <h3 className="text-sm font-semibold text-zinc-300 mb-3">Dimensiones</h3>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-3">{t.artifactsPage.dimensions}</h3>
           <div className="space-y-2">
             {c.dimensions.map((d) => (
               <div key={d.name} className="flex items-start gap-3">
@@ -162,17 +165,18 @@ function ScorecardView({ content }: { content: Record<string, unknown> }) {
 }
 
 /* ---------- BMC ---------- */
-function BmcView({ content }: { content: Record<string, unknown> }) {
+function BmcView({ content, t }: { content: Record<string, unknown>; t: Translations }) {
+  const bmcLabels = t.artifactsPage.bmcLabels;
   const blocks = [
-    { key: 'key_partners', label: 'Socios Clave' },
-    { key: 'key_activities', label: 'Actividades Clave' },
-    { key: 'key_resources', label: 'Recursos Clave' },
-    { key: 'value_proposition', label: 'Propuesta de Valor' },
-    { key: 'customer_relationships', label: 'Relacion con Clientes' },
-    { key: 'channels', label: 'Canales' },
-    { key: 'customer_segments', label: 'Segmentos de Clientes' },
-    { key: 'cost_structure', label: 'Estructura de Costos' },
-    { key: 'revenue_streams', label: 'Fuentes de Ingresos' },
+    { key: 'key_partners', label: bmcLabels.key_partners },
+    { key: 'key_activities', label: bmcLabels.key_activities },
+    { key: 'key_resources', label: bmcLabels.key_resources },
+    { key: 'value_proposition', label: bmcLabels.value_proposition },
+    { key: 'customer_relationships', label: bmcLabels.customer_relationships },
+    { key: 'channels', label: bmcLabels.channels },
+    { key: 'customer_segments', label: bmcLabels.customer_segments },
+    { key: 'cost_structure', label: bmcLabels.cost_structure },
+    { key: 'revenue_streams', label: bmcLabels.revenue_streams },
   ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

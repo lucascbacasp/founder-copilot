@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { MODE_LABELS, MODE_COLORS } from '@/lib/constants/artifact-types';
+import { MODE_COLORS } from '@/lib/constants/artifact-types';
+import { useI18n } from '@/lib/i18n';
 
 interface Conversation {
   id: string;
@@ -23,13 +24,14 @@ const MODE_SHORT: Record<string, string> = {
 
 export function ConversationList({ conversations }: { conversations: Conversation[] }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   if (conversations.length === 0) return null;
 
   return (
     <div className="flex-1 overflow-y-auto border-t border-zinc-800">
       <p className="px-4 pt-3 pb-1 text-xs font-medium text-zinc-500 uppercase tracking-wider">
-        Historial
+        {t.sidebar.history}
       </p>
       <div className="p-2 space-y-0.5">
         {conversations.map((conv) => {
@@ -54,7 +56,7 @@ export function ConversationList({ conversations }: { conversations: Conversatio
                 {MODE_SHORT[conv.mode] || '?'}
               </span>
               <span className="truncate">
-                {conv.title || 'Sin título'}
+                {conv.title || t.common.noTitle}
               </span>
             </Link>
           );

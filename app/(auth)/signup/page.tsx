@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +15,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useI18n();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -39,10 +42,13 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector />
+      </div>
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">Crear cuenta</h1>
-          <p className="mt-2 text-sm text-zinc-400">Empezá a validar tu startup con IA</p>
+          <h1 className="text-2xl font-bold text-white">{t.auth.signup.title}</h1>
+          <p className="mt-2 text-sm text-zinc-400">{t.auth.signup.subtitle}</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
@@ -54,7 +60,7 @@ export default function SignupPage() {
 
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-zinc-300">
-              Nombre completo
+              {t.auth.signup.fullName}
             </label>
             <input
               id="fullName"
@@ -63,13 +69,13 @@ export default function SignupPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="Tu nombre"
+              placeholder={t.auth.signup.fullNamePlaceholder}
             />
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-zinc-300">
-              Email
+              {t.auth.signup.email}
             </label>
             <input
               id="email"
@@ -78,13 +84,13 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="tu@email.com"
+              placeholder={t.auth.signup.emailPlaceholder}
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-zinc-300">
-              Password
+              {t.auth.signup.password}
             </label>
             <input
               id="password"
@@ -94,7 +100,7 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="Mínimo 6 caracteres"
+              placeholder={t.auth.signup.passwordPlaceholder}
             />
           </div>
 
@@ -103,14 +109,14 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+            {loading ? t.auth.signup.submitting : t.auth.signup.submit}
           </button>
         </form>
 
         <p className="text-center text-sm text-zinc-400">
-          ¿Ya tenés cuenta?{' '}
+          {t.auth.signup.hasAccount}{' '}
           <Link href="/login" className="text-indigo-400 hover:text-indigo-300">
-            Iniciá sesión
+            {t.auth.signup.loginLink}
           </Link>
         </p>
       </div>

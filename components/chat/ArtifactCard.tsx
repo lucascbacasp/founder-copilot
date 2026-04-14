@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ARTIFACT_TYPE_LABELS } from '@/lib/constants/artifact-types';
+import { useI18n } from '@/lib/i18n';
 
 interface ArtifactCardProps {
   type: string;
@@ -11,9 +11,9 @@ interface ArtifactCardProps {
 }
 
 export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardProps) {
-  const label = ARTIFACT_TYPE_LABELS[type] || type;
+  const { t } = useI18n();
+  const label = t.artifactTypes[type as keyof typeof t.artifactTypes] || type;
 
-  // Render a summary based on type
   function renderSummary() {
     switch (type) {
       case 'scorecard': {
@@ -24,7 +24,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
             {score !== undefined && (
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">{score}</span>
-                <span className="text-sm text-zinc-400">/10 score general</span>
+                <span className="text-sm text-zinc-400">{t.artifactCard.scoreGeneral10}</span>
               </div>
             )}
             {dims && (
@@ -48,13 +48,13 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
           <div className="space-y-1.5 text-xs">
             {vp && (
               <div>
-                <span className="text-zinc-500">Propuesta de valor: </span>
+                <span className="text-zinc-500">{t.artifactCard.valueProp}</span>
                 <span className="text-zinc-300">{vp}</span>
               </div>
             )}
             {segments && segments.length > 0 && (
               <div>
-                <span className="text-zinc-500">Segmentos: </span>
+                <span className="text-zinc-500">{t.artifactCard.segments}</span>
                 <span className="text-zinc-300">{segments.join(', ')}</span>
               </div>
             )}
@@ -69,13 +69,13 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
           <div className="space-y-1.5 text-xs">
             {y1?.revenue !== undefined && (
               <div>
-                <span className="text-zinc-500">Revenue Año 1: </span>
+                <span className="text-zinc-500">{t.artifactCard.revenueYear1}</span>
                 <span className="text-zinc-300">${y1.revenue.toLocaleString()}</span>
               </div>
             )}
             {ratio !== undefined && (
               <div>
-                <span className="text-zinc-500">LTV:CAC: </span>
+                <span className="text-zinc-500">{t.artifactCard.ltvCac}</span>
                 <span className="text-zinc-300">{ratio}:1</span>
               </div>
             )}
@@ -120,11 +120,11 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
               </div>
             ))}
             {opps && opps.length > 4 && (
-              <p className="text-[10px] text-zinc-600">+{opps.length - 4} oportunidades mas</p>
+              <p className="text-[10px] text-zinc-600">+{opps.length - 4} {t.artifactCard.moreOpportunities}</p>
             )}
             {quickWins && quickWins.length > 0 && (
               <div className="mt-1 pt-1 border-t border-zinc-800">
-                <p className="text-[10px] text-emerald-500 font-medium">Quick wins: {quickWins.join(', ')}</p>
+                <p className="text-[10px] text-emerald-500 font-medium">{t.artifactCard.quickWins}{quickWins.join(', ')}</p>
               </div>
             )}
           </div>
@@ -140,25 +140,25 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
           <div className="space-y-1.5 text-xs">
             {target && (
               <div>
-                <span className="text-zinc-500">Para: </span>
+                <span className="text-zinc-500">{t.artifactCard.for}</span>
                 <span className="text-indigo-400 font-medium">{target}</span>
               </div>
             )}
             {angle && (
               <div>
-                <span className="text-zinc-500">Angulo: </span>
+                <span className="text-zinc-500">{t.artifactCard.angle}</span>
                 <span className="text-zinc-300">{angle}</span>
               </div>
             )}
             {slides && (
               <div>
-                <span className="text-zinc-500">{slides.length} slides: </span>
+                <span className="text-zinc-500">{slides.length} {t.artifactCard.slides}</span>
                 <span className="text-zinc-400">{slides.map(s => s.title).join(' → ')}</span>
               </div>
             )}
             {tips && tips.length > 0 && (
               <div className="mt-1 pt-1 border-t border-zinc-800">
-                <p className="text-[10px] text-amber-400">Tip: {tips[0]}</p>
+                <p className="text-[10px] text-amber-400">{t.artifactCard.tip}{tips[0]}</p>
               </div>
             )}
           </div>
@@ -178,19 +178,19 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
                   {ask.amount_usd && (
                     <div className="text-center">
                       <span className="text-lg font-bold text-emerald-400">{ask.amount_usd}</span>
-                      <p className="text-[10px] text-zinc-500">Levantamiento</p>
+                      <p className="text-[10px] text-zinc-500">{t.artifactCard.fundraising}</p>
                     </div>
                   )}
                   {ask.equity_offered && (
                     <div className="text-center">
                       <span className="text-lg font-bold text-indigo-400">{ask.equity_offered}</span>
-                      <p className="text-[10px] text-zinc-500">Equity</p>
+                      <p className="text-[10px] text-zinc-500">{t.artifactCard.equity}</p>
                     </div>
                   )}
                   {ask.pre_money_valuation && (
                     <div className="text-center">
                       <span className="text-lg font-bold text-amber-400">{ask.pre_money_valuation}</span>
-                      <p className="text-[10px] text-zinc-500">Valuacion</p>
+                      <p className="text-[10px] text-zinc-500">{t.artifactCard.valuation}</p>
                     </div>
                   )}
                 </div>
@@ -199,7 +199,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
                 )}
                 {ask.use_of_funds && ask.use_of_funds.length > 0 && (
                   <div className="mt-1">
-                    <p className="text-[10px] text-zinc-500 font-medium mb-1">Use of Funds:</p>
+                    <p className="text-[10px] text-zinc-500 font-medium mb-1">{t.artifactCard.useOfFunds}</p>
                     {ask.use_of_funds.map((f, i) => (
                       <div key={i} className="flex items-center justify-between text-[11px]">
                         <span className="text-zinc-400">{f.category}</span>
@@ -219,12 +219,12 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
             )}
             {deckSlides && (
               <div className="text-[11px] text-zinc-500">
-                {deckSlides.length} slides: <span className="text-zinc-400">{deckSlides.map(s => s.title).join(' → ')}</span>
+                {deckSlides.length} {t.artifactCard.slides}<span className="text-zinc-400">{deckSlides.map(s => s.title).join(' → ')}</span>
               </div>
             )}
             {deckTips && deckTips.length > 0 && (
               <div className="pt-1 border-t border-zinc-800">
-                <p className="text-[10px] text-amber-400">Tip: {deckTips[0]}</p>
+                <p className="text-[10px] text-amber-400">{t.artifactCard.tip}{deckTips[0]}</p>
               </div>
             )}
           </div>
@@ -241,7 +241,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-bold text-white">{overallScore}</span>
                 <div>
-                  <span className="text-sm text-zinc-400">/5 score general</span>
+                  <span className="text-sm text-zinc-400">{t.artifactCard.scoreGeneral5}</span>
                   {level && <p className="text-xs text-red-400 font-medium">{level}</p>}
                 </div>
               </div>
@@ -263,7 +263,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
       default:
         return (
           <p className="text-xs text-zinc-500">
-            Artefacto generado. Ver detalle completo en el dashboard.
+            {t.artifactCard.defaultSummary}
           </p>
         );
     }
@@ -276,7 +276,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
           {label}
         </span>
         {artifactId && (
-          <span className="text-[10px] text-zinc-500 ml-auto">Ver detalle &rarr;</span>
+          <span className="text-[10px] text-zinc-500 ml-auto">{t.artifactCard.viewDetail}</span>
         )}
       </div>
       <p className="text-sm font-medium text-white mb-2">{title}</p>

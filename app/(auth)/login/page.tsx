@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useI18n();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -32,10 +35,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector />
+      </div>
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">Copiloto para Fundadores</h1>
-          <p className="mt-2 text-sm text-zinc-400">Iniciá sesión para continuar</p>
+          <h1 className="text-2xl font-bold text-white">{t.auth.appName}</h1>
+          <p className="mt-2 text-sm text-zinc-400">{t.auth.login.subtitle}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -47,7 +53,7 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-zinc-300">
-              Email
+              {t.auth.login.email}
             </label>
             <input
               id="email"
@@ -56,13 +62,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="tu@email.com"
+              placeholder={t.auth.login.emailPlaceholder}
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-zinc-300">
-              Password
+              {t.auth.login.password}
             </label>
             <input
               id="password"
@@ -71,7 +77,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="********"
+              placeholder={t.auth.login.passwordPlaceholder}
             />
           </div>
 
@@ -80,14 +86,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Ingresando...' : 'Ingresar'}
+            {loading ? t.auth.login.submitting : t.auth.login.submit}
           </button>
         </form>
 
         <p className="text-center text-sm text-zinc-400">
-          ¿No tenés cuenta?{' '}
+          {t.auth.login.noAccount}{' '}
           <Link href="/signup" className="text-indigo-400 hover:text-indigo-300">
-            Registrate &rarr;
+            {t.auth.login.signupLink}
           </Link>
         </p>
       </div>

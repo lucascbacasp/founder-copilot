@@ -3,16 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
+import { useI18n } from '@/lib/i18n';
 
 interface JourneyStep {
   id: string;
   mode: string;
   number: number;
-  title: string;
-  subtitle: string;
-  description: string;
   icon: React.ReactNode;
-  deliverables: string[];
 }
 
 const JOURNEY_STEPS: JourneyStep[] = [
@@ -20,86 +17,62 @@ const JOURNEY_STEPS: JourneyStep[] = [
     id: 'diagnostico',
     mode: 'diagnostico',
     number: 1,
-    title: 'Diagnóstico',
-    subtitle: 'Validá tu problema',
-    description: 'Evaluá si tu idea resuelve un problema real con mercado suficiente. Sin esto, todo lo demás es humo.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
     ),
-    deliverables: ['Scorecard de inversibilidad', 'Business Model Canvas', 'Mapa de competidores'],
   },
   {
     id: 'financiero',
     mode: 'financiero',
     number: 2,
-    title: 'Financiero',
-    subtitle: 'Probá los números',
-    description: 'Analizá unit economics, modelo de revenue y benchmarks LATAM. Los inversores quieren ver que el negocio cierra.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    deliverables: ['Modelo financiero', 'Roadmap de experimentos'],
   },
   {
     id: 'pitch',
     mode: 'pitch',
     number: 3,
-    title: 'Pitch',
-    subtitle: 'Arma tu narrativa',
-    description: 'Construí dos pitch decks: uno para inversores (con ask de capital, equity y valuación) y otro adaptado a la mejor oportunidad de funding no-dilutivo.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4V2m0 2a2 2 0 012 2v1a2 2 0 01-2 2 2 2 0 01-2-2V6a2 2 0 012-2zm0 10v2m0-2a2 2 0 00-2-2H4a2 2 0 00-2 2v1a2 2 0 002 2h1a2 2 0 002-2zm10-10V2m0 2a2 2 0 012 2v1a2 2 0 01-2 2 2 2 0 01-2-2V6a2 2 0 012-2z" />
       </svg>
     ),
-    deliverables: ['Investor deck (ask + equity + valuación)', 'Mapa de oportunidades de funding', 'Pitch adaptado a la mejor oportunidad'],
   },
   {
     id: 'qa',
     mode: 'qa',
     number: 4,
-    title: 'Q&A Analista',
-    subtitle: 'Stress-test tu historia',
-    description: 'Simula una due diligence con un analista de VC. Detecta puntos debiles antes de enfrentar inversores reales.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    deliverables: ['Score de preparación (1-10)', 'Top 3 puntos débiles identificados'],
   },
   {
     id: 'funding',
     mode: 'latam',
     number: 5,
-    title: 'Funding',
-    subtitle: 'Conseguí recursos',
-    description: 'Buscá hackathons, grants, aceleradoras y oportunidades de fondeo. Generá un pitch adaptado a la mejor oportunidad.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
     ),
-    deliverables: ['Mapa de oportunidades', 'Pitch adaptado', 'Estrategia de expansión LATAM'],
   },
   {
     id: 'challenge',
     mode: 'challenge',
     number: 6,
-    title: 'Challenge',
-    subtitle: 'Desafiá tu preparación',
-    description: 'Entrenamiento estilo Y Combinator: 12 preguntas duras, una por vez, con repreguntas si tus respuestas son vagas. Al final recibís un score de preparación.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
       </svg>
     ),
-    deliverables: ['Challenge scorecard (claridad, evidencia, foco, founder fit, honestidad)', 'Feedback pregunta por pregunta'],
   },
 ];
 
@@ -119,6 +92,7 @@ function ensureProgress(p: { completed?: string[]; skipped?: string[] } | null |
 
 export function JourneyMap({ completedModes: initialCompletedModes, journeyProgress: initialProgress }: JourneyMapProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const [progress, setProgress] = useState(() => ensureProgress(initialProgress));
   const [completedModes] = useState(new Set(initialCompletedModes));
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
@@ -191,6 +165,11 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
     router.push(`/chat?mode=${step.mode}&journey=${step.id}`);
   }
 
+  // Helper to get step translations by id
+  function getStepTranslations(stepId: string) {
+    return t.journey.steps[stepId as keyof typeof t.journey.steps];
+  }
+
   // Calculate overall progress — skipped steps count as progress
   const totalSteps = JOURNEY_STEPS.length;
   const doneCount = JOURNEY_STEPS.filter(
@@ -207,13 +186,13 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
       {/* Progress header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-white">Tu camino de validación</h2>
+          <h2 className="text-lg font-semibold text-white">{t.journey.title}</h2>
           <p className="text-sm text-zinc-400 mt-0.5">
             {advancedCount === 0
-              ? 'Empezá por validar tu idea'
+              ? t.journey.startValidating
               : advancedCount === totalSteps
-                ? doneCount === totalSteps ? '¡Completaste todas las etapas!' : `${doneCount} completadas, ${skippedCount} salteadas`
-                : `${doneCount} de ${totalSteps} completadas${skippedCount > 0 ? `, ${skippedCount} salteadas` : ''}`}
+                ? doneCount === totalSteps ? t.journey.allComplete : `${doneCount} ${t.journey.completed}, ${skippedCount} ${t.journey.skipped}`
+                : `${doneCount} / ${totalSteps} ${t.journey.completed}${skippedCount > 0 ? `, ${skippedCount} ${t.journey.skipped}` : ''}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -236,6 +215,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
           {JOURNEY_STEPS.map((step, index) => {
             const status = getStepStatus(step);
             const isExpanded = expandedStep === step.id;
+            const stepT = getStepTranslations(step.id);
 
             return (
               <div key={step.id} className="relative">
@@ -285,7 +265,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                             status === 'upcoming' && 'text-zinc-400'
                           )}
                         >
-                          {step.title}
+                          {stepT.title}
                         </h3>
                         <span
                           className={clsx(
@@ -297,12 +277,12 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                           )}
                         >
                           {status === 'completed'
-                            ? 'Completado'
+                            ? t.journey.statusCompleted
                             : status === 'current'
-                              ? 'Siguiente'
+                              ? t.journey.statusNext
                               : status === 'skipped'
-                                ? 'Salteado'
-                                : `Etapa ${step.number}`}
+                                ? t.journey.statusSkipped
+                                : `${step.number}`}
                         </span>
                       </div>
                       <p
@@ -311,7 +291,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                           status === 'current' ? 'text-zinc-300' : 'text-zinc-500'
                         )}
                       >
-                        {step.subtitle}
+                        {stepT.shortDesc}
                       </p>
                     </div>
 
@@ -340,15 +320,15 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                         : 'border-zinc-800 bg-zinc-900/50'
                     )}
                   >
-                    <p className="text-sm text-zinc-300">{step.description}</p>
+                    <p className="text-sm text-zinc-300">{stepT.longDesc}</p>
 
                     <div>
-                      <p className="text-xs font-medium text-zinc-500 mb-1.5">Que vas a obtener:</p>
+                      <p className="text-xs font-medium text-zinc-500 mb-1.5">{t.journey.deliverables}</p>
                       <ul className="space-y-1">
-                        {step.deliverables.map((d) => (
-                          <li key={d} className="flex items-center gap-2 text-xs text-zinc-400">
+                        {stepT.deliverables.split(',').map((d: string) => (
+                          <li key={d.trim()} className="flex items-center gap-2 text-xs text-zinc-400">
                             <span className="w-1 h-1 rounded-full bg-zinc-600" />
-                            {d}
+                            {d.trim()}
                           </li>
                         ))}
                       </ul>
@@ -368,7 +348,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                               : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                           )}
                         >
-                          {status === 'current' ? 'Empezar' : status === 'skipped' ? 'Hacer ahora' : 'Empezar'}
+                          {t.journey.start}
                         </button>
                       )}
 
@@ -380,7 +360,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                           }}
                           className="rounded-lg px-4 py-2 text-sm font-medium bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
                         >
-                          Repetir
+                          {t.journey.repeat}
                         </button>
                       )}
 
@@ -393,7 +373,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                           disabled={skipping === step.id}
                           className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors disabled:opacity-50"
                         >
-                          {skipping === step.id ? 'Salteando...' : 'Saltear'}
+                          {t.journey.skip}
                         </button>
                       )}
 
@@ -406,7 +386,7 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
                           disabled={skipping === step.id}
                           className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors disabled:opacity-50"
                         >
-                          Deshacer skip
+                          {t.journey.undoSkip}
                         </button>
                       )}
                     </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
+import { useI18n } from '@/lib/i18n';
 
 interface Artifact {
   id: string;
@@ -15,11 +16,10 @@ interface Artifact {
 interface ArtifactFiltersProps {
   artifacts: Artifact[];
   typeCounts: Record<string, number>;
-  typeLabels: Record<string, string>;
   typeColors: Record<string, string>;
 }
 
-function getMiniKPI(artifact: Artifact): string | null {
+function getMiniKPI(artifact: Artifact, t: ReturnType<typeof useI18n>['t']): string | null {
   const c = artifact.content;
   switch (artifact.type) {
     case 'scorecard':
@@ -35,18 +35,19 @@ function getMiniKPI(artifact: Artifact): string | null {
     case 'investor_deck':
       return Array.isArray(c.slides) ? `${c.slides.length} slides` : null;
     case 'funding_map':
-      return Array.isArray(c.opportunities) ? `${c.opportunities.length} oportunidades` : null;
+      return Array.isArray(c.opportunities) ? `${c.opportunities.length} ${t.artifactsPage.miniKpi.opportunities}` : null;
     case 'experiment_roadmap':
-      return Array.isArray(c.experiments) ? `${c.experiments.length} experimentos` : null;
+      return Array.isArray(c.experiments) ? `${c.experiments.length} ${t.artifactsPage.miniKpi.experiments}` : null;
     case 'competitor_map':
-      return Array.isArray(c.competitors) ? `${c.competitors.length} competidores` : null;
+      return Array.isArray(c.competitors) ? `${c.competitors.length} ${t.artifactsPage.miniKpi.competitors}` : null;
     default:
       return null;
   }
 }
 
-export function ArtifactFilters({ artifacts, typeCounts, typeLabels, typeColors }: ArtifactFiltersProps) {
+export function ArtifactFilters({ artifacts, typeCounts, typeColors }: ArtifactFiltersProps) {
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const { t } = useI18n();
 
   const uniqueTypes = Object.keys(typeCounts).sort();
   const filteredArtifacts = activeFilter === 'all'
@@ -66,7 +67,7 @@ export function ArtifactFilters({ artifacts, typeCounts, typeLabels, typeColors 
               : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
           )}
         >
-          Todos ({artifacts.length})
+          {t.artifactsPage.all} ({artifacts.length})
         </button>
         {uniqueTypes.map((type) => (
           <button
@@ -79,7 +80,7 @@ export function ArtifactFilters({ artifacts, typeCounts, typeLabels, typeColors 
                 : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
             )}
           >
-            {typeLabels[type] || type} ({typeCounts[type]})
+            {t.artifactTypes[type as keyof typeof t.artifactTypes] || type} ({typeCounts[type]})
           </button>
         ))}
       </div>
@@ -87,7 +88,7 @@ export function ArtifactFilters({ artifacts, typeCounts, typeLabels, typeColors 
       {/* Cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {filteredArtifacts.map((artifact) => {
-          const kpi = getMiniKPI(artifact);
+          const kpi = getMiniKPI(artifact, t);
           return (
             <Link
               key={artifact.id}
@@ -99,7 +100,7 @@ export function ArtifactFilters({ artifacts, typeCounts, typeLabels, typeColors 
                   'text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full',
                   typeColors[artifact.type] || 'bg-zinc-700 text-zinc-400'
                 )}>
-                  {typeLabels[artifact.type] || artifact.type}
+                  {t.artifactTypes[artifact.type as keyof typeof t.artifactTypes] || artifact.type}
                 </span>
                 {kpi && (
                   <span className="text-xs font-semibold text-zinc-300">{kpi}</span>

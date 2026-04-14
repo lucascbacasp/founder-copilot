@@ -3,40 +3,40 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-
-const STAGES = [
-  { value: 'idea', label: 'Idea', description: 'Tengo una idea pero no empecé a construir' },
-  { value: 'prototipo', label: 'Prototipo', description: 'Tengo un prototipo o mockup' },
-  { value: 'mvp', label: 'MVP', description: 'Tengo un producto mínimo viable en manos de usuarios' },
-  { value: 'traccion', label: 'Tracción', description: 'Tengo usuarios activos y métricas de uso' },
-  { value: 'revenue', label: 'Revenue', description: 'Estoy generando ingresos' },
-];
-
-const VERTICALS = [
-  { value: 'saas', label: 'SaaS' },
-  { value: 'fintech', label: 'Fintech' },
-  { value: 'marketplace', label: 'Marketplace' },
-  { value: 'consumer', label: 'Consumer' },
-  { value: 'deeptech', label: 'Deep Tech' },
-  { value: 'otro', label: 'Otro' },
-];
-
-const COUNTRIES = [
-  { value: 'ARG', label: 'Argentina' },
-  { value: 'MEX', label: 'México' },
-  { value: 'COL', label: 'Colombia' },
-  { value: 'BRA', label: 'Brasil' },
-  { value: 'CHL', label: 'Chile' },
-  { value: 'PER', label: 'Perú' },
-  { value: 'URY', label: 'Uruguay' },
-  { value: 'OTHER', label: 'Otro' },
-];
-
-const STEP_LABELS = ['Tu startup', 'Contexto'];
+import { useI18n } from '@/lib/i18n';
 
 export default function OnboardingPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useI18n();
+
+  const STAGES = [
+    { value: 'idea', label: t.stages.idea, description: t.stageDescriptions.idea },
+    { value: 'prototipo', label: t.stages.prototipo, description: t.stageDescriptions.prototipo },
+    { value: 'mvp', label: t.stages.mvp, description: t.stageDescriptions.mvp },
+    { value: 'traccion', label: t.stages.traccion, description: t.stageDescriptions.traccion },
+    { value: 'revenue', label: t.stages.revenue, description: t.stageDescriptions.revenue },
+  ];
+
+  const VERTICALS = [
+    { value: 'saas', label: t.verticals.saas },
+    { value: 'fintech', label: t.verticals.fintech },
+    { value: 'marketplace', label: t.verticals.marketplace },
+    { value: 'consumer', label: t.verticals.consumer },
+    { value: 'deeptech', label: t.verticals.deeptech },
+    { value: 'otro', label: t.verticals.otro },
+  ];
+
+  const COUNTRIES = [
+    { value: 'ARG', label: t.countries.argentina },
+    { value: 'MEX', label: t.countries.mexico },
+    { value: 'COL', label: t.countries.colombia },
+    { value: 'BRA', label: t.countries.brasil },
+    { value: 'CHL', label: t.countries.chile },
+    { value: 'PER', label: t.countries.peru },
+    { value: 'URY', label: t.countries.uruguay },
+    { value: 'OTHER', label: t.countries.otro },
+  ];
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -90,10 +90,10 @@ export default function OnboardingPage() {
 
   function validateStep0(): boolean {
     const newErrors: Record<string, string> = {};
-    if (!form.company_name.trim()) newErrors.company_name = 'El nombre de tu startup es requerido';
-    if (!form.description.trim()) newErrors.description = 'La descripción es requerida';
-    if (!form.stage) newErrors.stage = 'Seleccioná una etapa';
-    if (!form.vertical) newErrors.vertical = 'Seleccioná un vertical';
+    if (!form.company_name.trim()) newErrors.company_name = t.onboarding.fields.companyName;
+    if (!form.description.trim()) newErrors.description = t.onboarding.fields.description;
+    if (!form.stage) newErrors.stage = t.onboarding.fields.stage;
+    if (!form.vertical) newErrors.vertical = t.onboarding.fields.vertical;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -171,9 +171,9 @@ export default function OnboardingPage() {
     <div className="flex items-center justify-center min-h-full p-6 md:p-8">
       <div className="w-full max-w-lg space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-white">Configurá tu perfil</h1>
+          <h1 className="text-xl font-bold text-white">{t.onboarding.title}</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Con estos datos, el copiloto personaliza todo: las preguntas que te hace, los competidores que busca y los benchmarks que usa.
+            {t.onboarding.subtitle}
           </p>
         </div>
 
@@ -188,7 +188,7 @@ export default function OnboardingPage() {
             ))}
           </div>
           <div className="flex justify-between">
-            {STEP_LABELS.map((label, i) => (
+            {t.onboarding.steps.map((label: string, i: number) => (
               <span
                 key={i}
                 className={`text-[11px] ${i <= step ? 'text-indigo-400' : 'text-zinc-600'}`}
@@ -199,12 +199,12 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Step 0: Startup essentials (obligatorio) */}
+        {/* Step 0: Startup essentials */}
         {step === 0 && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">
-                Nombre de tu startup <span className="text-red-400">*</span>
+                {t.onboarding.fields.companyName} <span className="text-red-400">{t.onboarding.required}</span>
               </label>
               <input
                 type="text"
@@ -213,14 +213,14 @@ export default function OnboardingPage() {
                 className={`w-full rounded-lg border bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:ring-1 ${
                   errors.company_name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500'
                 }`}
-                placeholder="Ej: MiFintech"
+                placeholder={t.onboarding.fields.companyNamePlaceholder}
               />
               {errors.company_name && <p className="text-xs text-red-400 mt-1">{errors.company_name}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">
-                ¿Qué problema resolvés y para quién? <span className="text-red-400">*</span>
+                {t.onboarding.fields.description} <span className="text-red-400">{t.onboarding.required}</span>
               </label>
               <textarea
                 value={form.description}
@@ -229,14 +229,14 @@ export default function OnboardingPage() {
                 className={`w-full rounded-lg border bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:ring-1 resize-none ${
                   errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500'
                 }`}
-                placeholder="Ej: Automatizamos cobranzas para PYMEs que pierden hasta 15% de facturación por mora"
+                placeholder={t.onboarding.fields.descriptionPlaceholder}
               />
               {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
-                Etapa actual <span className="text-red-400">*</span>
+                {t.onboarding.fields.stage} <span className="text-red-400">{t.onboarding.required}</span>
               </label>
               {errors.stage && <p className="text-xs text-red-400 mb-2">{errors.stage}</p>}
               <div className="space-y-2">
@@ -259,7 +259,7 @@ export default function OnboardingPage() {
 
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
-                Vertical <span className="text-red-400">*</span>
+                {t.onboarding.fields.vertical} <span className="text-red-400">{t.onboarding.required}</span>
               </label>
               {errors.vertical && <p className="text-xs text-red-400 mb-2">{errors.vertical}</p>}
               <div className="grid grid-cols-3 gap-2">
@@ -283,7 +283,7 @@ export default function OnboardingPage() {
               onClick={() => { if (validateStep0()) setStep(1); }}
               className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
             >
-              Siguiente
+              {t.common.next}
             </button>
           </div>
         )}
@@ -293,7 +293,7 @@ export default function OnboardingPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
-                País principal
+                {t.onboarding.fields.country}
               </label>
               <div className="grid grid-cols-4 gap-2">
                 {COUNTRIES.map((c) => (
@@ -314,17 +314,17 @@ export default function OnboardingPage() {
 
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">
-                One-liner del pitch
+                {t.onboarding.fields.pitchSummary}
               </label>
               <input
                 type="text"
                 value={form.pitch_summary}
                 onChange={(e) => update('pitch_summary', e.target.value)}
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                placeholder="[Verbo] [qué] para [quién] en [dónde]"
+                placeholder={t.onboarding.fields.pitchTemplate}
               />
               <p className="text-[11px] text-zinc-600 mt-1">
-                Ej: &quot;Automatizamos cobranzas para PYMEs en LATAM&quot;
+                {t.onboarding.fields.pitchExample}
               </p>
             </div>
 
@@ -333,12 +333,12 @@ export default function OnboardingPage() {
               <>
                 <div className="pt-2 border-t border-zinc-800">
                   <p className="text-xs text-zinc-500 mb-3">
-                    Métricas actuales (ayudan a calibrar el análisis financiero)
+                    {t.onboarding.fields.metrics}
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-zinc-300 mb-1">
-                        MRR (USD)
+                        {t.onboarding.fields.mrr}
                       </label>
                       <input
                         type="number"
@@ -351,7 +351,7 @@ export default function OnboardingPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-zinc-300 mb-1">
-                        Clientes activos
+                        {t.onboarding.fields.activeCustomers}
                       </label>
                       <input
                         type="number"
@@ -369,7 +369,7 @@ export default function OnboardingPage() {
 
             {!showMetrics && (
               <p className="text-xs text-zinc-600">
-                Si todavía no tenés revenue o clientes, es normal. El copiloto se adapta a tu etapa.
+                {t.onboarding.fields.noRevenueNote}
               </p>
             )}
 
@@ -378,14 +378,14 @@ export default function OnboardingPage() {
                 onClick={() => setStep(0)}
                 className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
               >
-                Atrás
+                {t.common.back}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={loading}
                 className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Guardando...' : 'Empezar'}
+                {loading ? t.onboarding.submitting : t.onboarding.submit}
               </button>
             </div>
 
@@ -394,7 +394,7 @@ export default function OnboardingPage() {
               disabled={loading}
               className="w-full text-xs text-zinc-500 hover:text-zinc-300 transition-colors py-1"
             >
-              Saltear por ahora y completar después
+              {t.onboarding.skipStep}
             </button>
           </div>
         )}
