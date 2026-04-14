@@ -21,6 +21,7 @@ export default async function ArtifactsPage() {
     funding_map: 'Mapa de Oportunidades',
     adapted_pitch: 'Pitch Adaptado',
     investor_deck: 'Deck para Inversores',
+    challenge_scorecard: 'Challenge Scorecard',
   };
 
   return (

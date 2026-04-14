@@ -17,6 +17,7 @@ const MODE_LABELS: Record<string, string> = {
   pitch: 'P',
   qa: 'Q',
   latam: 'L',
+  challenge: 'C',
 };
 
 const MODE_COLORS: Record<string, string> = {
@@ -25,6 +26,7 @@ const MODE_COLORS: Record<string, string> = {
   pitch: 'bg-purple-500/20 text-purple-400',
   qa: 'bg-orange-500/20 text-orange-400',
   latam: 'bg-teal-500/20 text-teal-400',
+  challenge: 'bg-red-500/20 text-red-400',
 };
 
 export function ConversationList({ conversations }: { conversations: Conversation[] }) {

@@ -48,6 +48,7 @@ TIPOS DISPONIBLES:
 - funding_map: Mapa de oportunidades de financiamiento (hackathons, grants, aceleradoras, VCs) con deadlines, montos y fit score
 - adapted_pitch: Pitch deck adaptado a una oportunidad especifica (hackathon, grant, aceleradora) con enfasis en lo que evaluan
 - investor_deck: Pitch deck para inversores (VC/angels) con estructura clasica de fundraising: Ask (monto + equity + valuacion), Use of Funds, TAM/SAM/SOM, proyecciones financieras
+- challenge_scorecard: Scorecard del Challenge YC con puntuacion por criterio (claridad, evidencia, foco, founder fit, honestidad), respuestas evaluadas y recomendaciones
 
 CUANDO USARLO: Cuando tenes suficiente contexto de la idea (al menos 2-3 turnos de conversacion). Siempre generarlo DESPUES de hacer preguntas y recopilar informacion.
 Para funding_map: generarlo despues de search_funding.
@@ -58,7 +59,7 @@ Para investor_deck: generarlo en modo pitch cuando el fundador tiene datos finan
       properties: {
         type: {
           type: 'string',
-          enum: ['bmc', 'scorecard', 'financial_model', 'experiment_roadmap', 'competitor_map', 'pitch_outline', 'funding_map', 'adapted_pitch', 'investor_deck'],
+          enum: ['bmc', 'scorecard', 'financial_model', 'experiment_roadmap', 'competitor_map', 'pitch_outline', 'funding_map', 'adapted_pitch', 'investor_deck', 'challenge_scorecard'],
           description: 'El tipo de artefacto a generar.',
         },
         title: {

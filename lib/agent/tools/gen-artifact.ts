@@ -202,6 +202,28 @@ Devolve un JSON:
   "tips_for_presentation": []
 }`,
 
+  challenge_scorecard: `Genera un scorecard completo del Challenge YC basado en las respuestas del fundador durante la sesion.
+Evalua cada criterio del 1 al 5 y da feedback especifico por respuesta.
+Devolve un JSON:
+{
+  "overall_score": 0,
+  "level": "No preparado|En camino|Casi listo|Interview-ready|Excepcional",
+  "criteria": [
+    { "name": "Claridad", "score": 0, "feedback": "..." },
+    { "name": "Evidencia", "score": 0, "feedback": "..." },
+    { "name": "Foco", "score": 0, "feedback": "..." },
+    { "name": "Founder fit", "score": 0, "feedback": "..." },
+    { "name": "Honestidad", "score": 0, "feedback": "..." }
+  ],
+  "responses_evaluated": [
+    { "question": "...", "response_summary": "...", "score": 0, "feedback": "...", "improved_version": "..." }
+  ],
+  "strongest_response": { "question": "...", "why": "..." },
+  "weakest_response": { "question": "...", "why": "...", "how_to_improve": "..." },
+  "homework": ["..."],
+  "yc_readiness_summary": "..."
+}`,
+
   adapted_pitch: `Genera un pitch deck completo adaptado a la oportunidad especifica indicada en el contexto.
 El pitch debe enfatizar los criterios de evaluacion de esa oportunidad (hackathon, grant, aceleradora).
 Devolve un JSON:

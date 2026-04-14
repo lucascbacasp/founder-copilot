@@ -14,6 +14,7 @@ const TYPE_LABELS: Record<string, string> = {
   funding_map: 'Mapa de Oportunidades',
   adapted_pitch: 'Pitch Adaptado',
   investor_deck: 'Deck para Inversores',
+  challenge_scorecard: 'Challenge Scorecard',
 };
 
 interface Artifact {
@@ -118,6 +119,8 @@ function ArtifactContent({ type, content }: { type: string; content: Record<stri
       return <AdaptedPitchView content={content} />;
     case 'investor_deck':
       return <InvestorDeckView content={content} />;
+    case 'challenge_scorecard':
+      return <ChallengeScorecardView content={content} />;
     default:
       return <GenericView content={content} />;
   }
@@ -705,6 +708,139 @@ function InvestorDeckView({ content }: { content: Record<string, unknown> }) {
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
           <h4 className="text-xs font-bold text-amber-400 uppercase mb-2">Tips de presentacion</h4>
           {c.tips_for_presentation.map((t, i) => <p key={i} className="text-xs text-zinc-300 mb-1">- {t}</p>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Challenge Scorecard ---------- */
+function ChallengeScorecardView({ content }: { content: Record<string, unknown> }) {
+  const c = content as {
+    overall_score?: number;
+    level?: string;
+    criteria?: { name: string; score: number; feedback: string }[];
+    responses_evaluated?: { question: string; response_summary: string; score: number; feedback: string; improved_version: string }[];
+    strongest_response?: { question: string; why: string };
+    weakest_response?: { question: string; why: string; how_to_improve: string };
+    homework?: string[];
+    yc_readiness_summary?: string;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Overall score + level */}
+      {c.overall_score !== undefined && (
+        <div className="flex items-center gap-4">
+          <span className="text-5xl font-bold text-white">{c.overall_score}</span>
+          <div>
+            <span className="text-zinc-400 text-lg">/5</span>
+            {c.level && (
+              <p className={`text-sm font-semibold mt-1 ${
+                c.level === 'Excepcional' ? 'text-emerald-400' :
+                c.level === 'Interview-ready' ? 'text-green-400' :
+                c.level === 'Casi listo' ? 'text-amber-400' :
+                c.level === 'En camino' ? 'text-orange-400' :
+                'text-red-400'
+              }`}>
+                {c.level}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* YC readiness summary */}
+      {c.yc_readiness_summary && (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+          <p className="text-sm text-zinc-300">{c.yc_readiness_summary}</p>
+        </div>
+      )}
+
+      {/* Criteria scores */}
+      {c.criteria && (
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-3">Criterios de evaluacion</h3>
+          <div className="space-y-3">
+            {c.criteria.map((cr) => (
+              <div key={cr.name} className="rounded-lg border border-zinc-800 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-white">{cr.name}</span>
+                  <span className={`text-lg font-bold ${
+                    cr.score >= 4 ? 'text-emerald-400' : cr.score >= 3 ? 'text-amber-400' : 'text-red-400'
+                  }`}>
+                    {cr.score}/5
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400">{cr.feedback}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strongest / Weakest response */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {c.strongest_response && (
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
+            <h4 className="text-xs font-bold text-emerald-400 uppercase mb-2">Respuesta mas fuerte</h4>
+            <p className="text-sm text-white mb-1">{c.strongest_response.question}</p>
+            <p className="text-xs text-zinc-400">{c.strongest_response.why}</p>
+          </div>
+        )}
+        {c.weakest_response && (
+          <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+            <h4 className="text-xs font-bold text-red-400 uppercase mb-2">Respuesta mas debil</h4>
+            <p className="text-sm text-white mb-1">{c.weakest_response.question}</p>
+            <p className="text-xs text-zinc-400 mb-2">{c.weakest_response.why}</p>
+            {c.weakest_response.how_to_improve && (
+              <p className="text-xs text-amber-400"><span className="text-zinc-500">Mejora:</span> {c.weakest_response.how_to_improve}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Responses evaluated */}
+      {c.responses_evaluated && c.responses_evaluated.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-3">Respuestas evaluadas</h3>
+          <div className="space-y-3">
+            {c.responses_evaluated.map((r, i) => (
+              <div key={i} className="rounded-lg border border-zinc-800 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-white">{r.question}</p>
+                  <span className={`text-sm font-bold flex-shrink-0 ml-3 ${
+                    r.score >= 4 ? 'text-emerald-400' : r.score >= 3 ? 'text-amber-400' : 'text-red-400'
+                  }`}>
+                    {r.score}/5
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 mb-1">{r.response_summary}</p>
+                <p className="text-xs text-zinc-400 mb-2">{r.feedback}</p>
+                {r.improved_version && (
+                  <div className="mt-2 pt-2 border-t border-zinc-800">
+                    <p className="text-[10px] text-indigo-400 font-medium mb-1">Version mejorada:</p>
+                    <p className="text-xs text-zinc-300 italic">{r.improved_version}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Homework */}
+      {c.homework && c.homework.length > 0 && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+          <h4 className="text-xs font-bold text-amber-400 uppercase mb-2">Tarea para mejorar</h4>
+          <ul className="space-y-1.5">
+            {c.homework.map((h, i) => (
+              <li key={i} className="text-xs text-zinc-300 flex items-start gap-2">
+                <span className="text-amber-400 mt-0.5 flex-shrink-0">{i + 1}.</span>
+                {h}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

@@ -19,6 +19,7 @@ const TYPE_INFO: Record<string, { label: string; icon: string }> = {
   funding_map: { label: 'Mapa de Oportunidades', icon: 'funding' },
   adapted_pitch: { label: 'Pitch Adaptado', icon: 'target' },
   investor_deck: { label: 'Deck para Inversores', icon: 'rocket' },
+  challenge_scorecard: { label: 'Challenge Scorecard', icon: 'fire' },
 };
 
 export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardProps) {
@@ -236,6 +237,35 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
             {deckTips && deckTips.length > 0 && (
               <div className="pt-1 border-t border-zinc-800">
                 <p className="text-[10px] text-amber-400">Tip: {deckTips[0]}</p>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      case 'challenge_scorecard': {
+        const overallScore = (content as { overall_score?: number }).overall_score;
+        const level = (content as { level?: string }).level;
+        const criteria = (content as { criteria?: { name: string; score: number }[] }).criteria;
+        return (
+          <div className="space-y-2">
+            {overallScore !== undefined && (
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-white">{overallScore}</span>
+                <div>
+                  <span className="text-sm text-zinc-400">/5 score general</span>
+                  {level && <p className="text-xs text-red-400 font-medium">{level}</p>}
+                </div>
+              </div>
+            )}
+            {criteria && (
+              <div className="grid grid-cols-2 gap-1.5">
+                {criteria.map((c) => (
+                  <div key={c.name} className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-400">{c.name}</span>
+                    <span className={`font-medium ${c.score >= 4 ? 'text-emerald-400' : c.score >= 3 ? 'text-amber-400' : 'text-red-400'}`}>{c.score}/5</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>

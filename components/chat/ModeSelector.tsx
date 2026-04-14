@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 
-export type Mode = 'diagnostico' | 'financiero' | 'pitch' | 'qa' | 'latam';
+export type Mode = 'diagnostico' | 'financiero' | 'pitch' | 'qa' | 'latam' | 'challenge';
 
 const MODES: { id: Mode; label: string; description: string }[] = [
   { id: 'diagnostico', label: 'Diagnóstico', description: 'Evaluá tu idea y problem-solution fit' },
@@ -10,6 +10,7 @@ const MODES: { id: Mode; label: string; description: string }[] = [
   { id: 'pitch', label: 'Pitch', description: 'Prepará y mejorá tu pitch deck' },
   { id: 'qa', label: 'Q&A Analista', description: 'Simulación de due diligence con un VC' },
   { id: 'latam', label: 'Expansión LATAM', description: 'Estrategia de expansión regional' },
+  { id: 'challenge', label: 'Challenge', description: 'Desafío estilo YC: respuestas cortas y repreguntas duras' },
 ];
 
 interface ModeSelectorProps {

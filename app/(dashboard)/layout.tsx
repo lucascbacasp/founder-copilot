@@ -35,6 +35,7 @@ export default async function DashboardLayout({
     pitch: 'P',
     qa: 'Q',
     latam: 'L',
+    challenge: 'C',
   };
 
   return (
