@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">Copiloto para Fundadores</h1>
-          <p className="mt-2 text-sm text-zinc-400">Inicia sesion para continuar</p>
+          <p className="mt-2 text-sm text-zinc-400">Iniciá sesión para continuar</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -85,9 +85,9 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-sm text-zinc-400">
-          No tenes cuenta?{' '}
+          ¿No tenés cuenta?{' '}
           <Link href="/signup" className="text-indigo-400 hover:text-indigo-300">
-            Registrate
+            Registrate &rarr;
           </Link>
         </p>
       </div>

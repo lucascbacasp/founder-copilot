@@ -39,9 +39,11 @@ interface ChatInterfaceProps {
   initialMessages?: ChatMessage[];
   initialItems?: ChatItem[];
   journeyStep?: string;
+  completedModes?: string[];
+  recommendedMode?: string | null;
 }
 
-export function ChatInterface({ conversationId, initialMode, initialMessages = [], initialItems, journeyStep }: ChatInterfaceProps) {
+export function ChatInterface({ conversationId, initialMode, initialMessages = [], initialItems, journeyStep, completedModes = [], recommendedMode }: ChatInterfaceProps) {
   const [mode, setMode] = useState<Mode | null>(initialMode || null);
   const [items, setItems] = useState<ChatItem[]>(initialItems || initialMessages);
   const [input, setInput] = useState('');
@@ -219,13 +221,28 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
 
   if (!mode) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
-        <h2 className="text-xl font-bold text-white mb-2">Elegi un modo</h2>
+      <div className="flex flex-col items-center justify-center h-full p-6 md:p-8">
+        {journeyStep && (
+          <div className="mb-4 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+            <p className="text-xs text-indigo-400 font-medium">Paso del journey: {journeyStep.charAt(0).toUpperCase() + journeyStep.slice(1)}</p>
+          </div>
+        )}
+        <h2 className="text-xl font-bold text-white mb-2">Elegí un modo</h2>
         <p className="text-sm text-zinc-400 mb-6">Cada modo adapta al agente para un objetivo distinto</p>
-        <ModeSelector selected={mode} onSelect={setMode} />
-        <p className="text-xs text-zinc-600 mt-4">
-          Tip: usa el journey del dashboard para seguir el camino recomendado
-        </p>
+        <ModeSelector
+          selected={mode}
+          onSelect={setMode}
+          completedModes={completedModes}
+          recommendedMode={recommendedMode}
+        />
+        <div className="mt-5 flex items-center gap-2 text-zinc-500">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs">
+            Seguí el <a href="/" className="text-indigo-400 hover:text-indigo-300 underline">camino del dashboard</a> para el orden recomendado
+          </p>
+        </div>
       </div>
     );
   }

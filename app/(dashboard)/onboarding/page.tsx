@@ -32,7 +32,7 @@ const COUNTRIES = [
   { value: 'OTHER', label: 'Otro' },
 ];
 
-const STEP_LABELS = ['Datos básicos', 'Etapa y vertical', 'País y métricas'];
+const STEP_LABELS = ['Tu startup', 'Contexto'];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -53,7 +53,6 @@ export default function OnboardingPage() {
     active_customers: 0,
   });
 
-  // Pre-load existing profile data (#005)
   useEffect(() => {
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -84,23 +83,15 @@ export default function OnboardingPage() {
 
   function update(field: string, value: string | number) {
     setForm((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field when user types
     if (errors[field]) {
       setErrors((prev) => { const next = { ...prev }; delete next[field]; return next; });
     }
   }
 
-  // Validation (#004)
   function validateStep0(): boolean {
     const newErrors: Record<string, string> = {};
     if (!form.company_name.trim()) newErrors.company_name = 'El nombre de tu startup es requerido';
     if (!form.description.trim()) newErrors.description = 'La descripción es requerida';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }
-
-  function validateStep1(): boolean {
-    const newErrors: Record<string, string> = {};
     if (!form.stage) newErrors.stage = 'Seleccioná una etapa';
     if (!form.vertical) newErrors.vertical = 'Seleccioná un vertical';
     setErrors(newErrors);
@@ -130,6 +121,38 @@ export default function OnboardingPage() {
     router.refresh();
   }
 
+  async function handleSkipStep2() {
+    // Save only step 1 data
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('founder_profiles')
+      .upsert({
+        user_id: user.id,
+        full_name: user.user_metadata?.full_name || null,
+        company_name: form.company_name,
+        description: form.description,
+        stage: form.stage,
+        vertical: form.vertical,
+        country: form.country,
+        mrr: 0,
+        active_customers: 0,
+      }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.error('Error saving profile:', error);
+      setLoading(false);
+      return;
+    }
+
+    router.push('/');
+    router.refresh();
+  }
+
+  const showMetrics = ['traccion', 'revenue', 'mvp'].includes(form.stage);
+
   if (loadingProfile) {
     return (
       <div className="flex items-center justify-center min-h-full p-8">
@@ -145,19 +168,19 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-full p-8">
+    <div className="flex items-center justify-center min-h-full p-6 md:p-8">
       <div className="w-full max-w-lg space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Configurá tu perfil</h1>
+          <h1 className="text-xl font-bold text-white">Configurá tu perfil</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Esto ayuda al copiloto a darte análisis más relevantes
+            Con estos datos, el copiloto personaliza todo: las preguntas que te hace, los competidores que busca y los benchmarks que usa.
           </p>
         </div>
 
-        {/* Step indicators with labels (#006) */}
+        {/* Step indicators */}
         <div className="space-y-2">
           <div className="flex gap-2">
-            {[0, 1, 2].map((s) => (
+            {[0, 1].map((s) => (
               <div
                 key={s}
                 className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? 'bg-indigo-500' : 'bg-zinc-800'}`}
@@ -176,7 +199,7 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* Step 0: Startup basics */}
+        {/* Step 0: Startup essentials (obligatorio) */}
         {step === 0 && (
           <div className="space-y-4">
             <div>
@@ -197,7 +220,7 @@ export default function OnboardingPage() {
 
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">
-                Descripción corta <span className="text-red-400">*</span>
+                ¿Qué problema resolvés y para quién? <span className="text-red-400">*</span>
               </label>
               <textarea
                 value={form.description}
@@ -206,36 +229,11 @@ export default function OnboardingPage() {
                 className={`w-full rounded-lg border bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:ring-1 resize-none ${
                   errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500'
                 }`}
-                placeholder="¿Qué problema resuelve tu startup y para quién?"
+                placeholder="Ej: Automatizamos cobranzas para PYMEs que pierden hasta 15% de facturación por mora"
               />
               {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-1">
-                One-liner del pitch
-              </label>
-              <input
-                type="text"
-                value={form.pitch_summary}
-                onChange={(e) => update('pitch_summary', e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                placeholder="Ej: Automatizamos cobranzas para PYMEs en LATAM"
-              />
-            </div>
-
-            <button
-              onClick={() => { if (validateStep0()) setStep(1); }}
-              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
-            >
-              Siguiente
-            </button>
-          </div>
-        )}
-
-        {/* Step 1: Stage and vertical */}
-        {step === 1 && (
-          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
                 Etapa actual <span className="text-red-400">*</span>
@@ -281,25 +279,17 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(0)}
-                className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
-              >
-                Atrás
-              </button>
-              <button
-                onClick={() => { if (validateStep1()) setStep(2); }}
-                className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
-              >
-                Siguiente
-              </button>
-            </div>
+            <button
+              onClick={() => { if (validateStep0()) setStep(1); }}
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
+            >
+              Siguiente
+            </button>
           </div>
         )}
 
-        {/* Step 2: Country and metrics */}
-        {step === 2 && (
+        {/* Step 1: Context (conditional by stage) */}
+        {step === 1 && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">
@@ -322,42 +312,70 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-1">
-                  MRR (USD)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={form.mrr || ''}
-                  onChange={(e) => update('mrr', parseInt(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-1">
-                  Clientes activos
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={form.active_customers || ''}
-                  onChange={(e) => update('active_customers', parseInt(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="0"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">
+                One-liner del pitch
+              </label>
+              <input
+                type="text"
+                value={form.pitch_summary}
+                onChange={(e) => update('pitch_summary', e.target.value)}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                placeholder="[Verbo] [qué] para [quién] en [dónde]"
+              />
+              <p className="text-[11px] text-zinc-600 mt-1">
+                Ej: &quot;Automatizamos cobranzas para PYMEs en LATAM&quot;
+              </p>
             </div>
 
-            <p className="text-xs text-zinc-600">
-              Si todavía no tenés revenue o clientes, dejalo en 0. Es normal en etapas tempranas.
-            </p>
+            {/* Conditional metrics based on stage */}
+            {showMetrics && (
+              <>
+                <div className="pt-2 border-t border-zinc-800">
+                  <p className="text-xs text-zinc-500 mb-3">
+                    Métricas actuales (ayudan a calibrar el análisis financiero)
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-300 mb-1">
+                        MRR (USD)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.mrr || ''}
+                        onChange={(e) => update('mrr', parseInt(e.target.value) || 0)}
+                        className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-300 mb-1">
+                        Clientes activos
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.active_customers || ''}
+                        onChange={(e) => update('active_customers', parseInt(e.target.value) || 0)}
+                        className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {!showMetrics && (
+              <p className="text-xs text-zinc-600">
+                Si todavía no tenés revenue o clientes, es normal. El copiloto se adapta a tu etapa.
+              </p>
+            )}
 
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(1)}
+                onClick={() => setStep(0)}
                 className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
               >
                 Atrás
@@ -370,6 +388,14 @@ export default function OnboardingPage() {
                 {loading ? 'Guardando...' : 'Empezar'}
               </button>
             </div>
+
+            <button
+              onClick={handleSkipStep2}
+              disabled={loading}
+              className="w-full text-xs text-zinc-500 hover:text-zinc-300 transition-colors py-1"
+            >
+              Saltear por ahora y completar después
+            </button>
           </div>
         )}
       </div>

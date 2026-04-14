@@ -4,8 +4,8 @@ import clsx from 'clsx';
 
 const TOOL_INFO: Record<string, { label: string; color: string; activeLabel: string }> = {
   web_search: {
-    label: 'Busqueda web',
-    activeLabel: 'Buscando informacion...',
+    label: 'Búsqueda web',
+    activeLabel: 'Buscando información...',
     color: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
   },
   gen_artifact: {

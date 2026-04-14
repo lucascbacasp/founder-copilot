@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ARTIFACT_TYPE_LABELS } from '@/lib/constants/artifact-types';
 
 interface ArtifactCardProps {
   type: string;
@@ -9,21 +10,8 @@ interface ArtifactCardProps {
   artifactId?: string;
 }
 
-const TYPE_INFO: Record<string, { label: string; icon: string }> = {
-  bmc: { label: 'Business Model Canvas', icon: 'grid' },
-  scorecard: { label: 'Scorecard de Inversibilidad', icon: 'chart' },
-  financial_model: { label: 'Modelo Financiero', icon: 'dollar' },
-  experiment_roadmap: { label: 'Roadmap de Experimentos', icon: 'flask' },
-  competitor_map: { label: 'Mapa de Competidores', icon: 'map' },
-  pitch_outline: { label: 'Outline de Pitch', icon: 'presentation' },
-  funding_map: { label: 'Mapa de Oportunidades', icon: 'funding' },
-  adapted_pitch: { label: 'Pitch Adaptado', icon: 'target' },
-  investor_deck: { label: 'Deck para Inversores', icon: 'rocket' },
-  challenge_scorecard: { label: 'Challenge Scorecard', icon: 'fire' },
-};
-
 export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardProps) {
-  const info = TYPE_INFO[type] || { label: type, icon: 'doc' };
+  const label = ARTIFACT_TYPE_LABELS[type] || type;
 
   // Render a summary based on type
   function renderSummary() {
@@ -285,7 +273,7 @@ export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardP
     <div className={`rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 my-2 max-w-[80%] ${artifactId ? 'hover:bg-indigo-500/10 hover:border-indigo-500/50 transition-colors cursor-pointer' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">
-          {info.label}
+          {label}
         </span>
         {artifactId && (
           <span className="text-[10px] text-zinc-500 ml-auto">Ver detalle &rarr;</span>

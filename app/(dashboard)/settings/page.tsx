@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { IntegrationsPanel } from '@/components/settings/IntegrationsPanel';
+import { MemoryPanel } from '@/components/settings/MemoryPanel';
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -22,7 +23,7 @@ export default async function SettingsPage() {
     idea: 'Idea',
     prototipo: 'Prototipo',
     mvp: 'MVP',
-    traccion: 'Traccion',
+    traccion: 'Tracción',
     revenue: 'Revenue',
   };
 
@@ -36,16 +37,16 @@ export default async function SettingsPage() {
   };
 
   return (
-    <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-bold text-white mb-6">Configuración</h1>
+    <div className="p-6 md:p-8 max-w-2xl">
+      <h1 className="text-xl font-bold text-white mb-6">Configuración</h1>
 
       {/* Profile section */}
       <section className="space-y-4 mb-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Perfil de la startup</h2>
+          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Perfil de la startup</h2>
           <Link
             href="/onboarding"
-            className="text-sm text-indigo-400 hover:text-indigo-300"
+            className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             {profile ? 'Editar' : 'Completar'}
           </Link>
@@ -55,98 +56,84 @@ export default async function SettingsPage() {
           <div className="rounded-xl border border-zinc-800 p-5 space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-zinc-500">Startup</p>
-                <p className="text-sm text-white">{profile.company_name}</p>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Startup</p>
+                <p className="text-sm text-white mt-0.5">{profile.company_name}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Etapa</p>
-                <p className="text-sm text-white">{stageLabels[profile.stage] || profile.stage}</p>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Etapa</p>
+                <p className="text-sm text-white mt-0.5">{stageLabels[profile.stage] || profile.stage}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Vertical</p>
-                <p className="text-sm text-white">{verticalLabels[profile.vertical] || profile.vertical}</p>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Vertical</p>
+                <p className="text-sm text-white mt-0.5">{verticalLabels[profile.vertical] || profile.vertical}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">Pais</p>
-                <p className="text-sm text-white">{profile.country}</p>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">País</p>
+                <p className="text-sm text-white mt-0.5">{profile.country}</p>
               </div>
-              <div>
-                <p className="text-xs text-zinc-500">MRR</p>
-                <p className="text-sm text-white">${profile.mrr || 0}</p>
-              </div>
-              <div>
-                <p className="text-xs text-zinc-500">Clientes activos</p>
-                <p className="text-sm text-white">{profile.active_customers || 0}</p>
-              </div>
+              {(profile.mrr > 0 || profile.active_customers > 0) && (
+                <>
+                  <div>
+                    <p className="text-[11px] text-zinc-500 uppercase tracking-wide">MRR</p>
+                    <p className="text-sm text-white mt-0.5">${profile.mrr || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Clientes activos</p>
+                    <p className="text-sm text-white mt-0.5">{profile.active_customers || 0}</p>
+                  </div>
+                </>
+              )}
             </div>
             {profile.description && (
-              <div>
-                <p className="text-xs text-zinc-500">Descripcion</p>
-                <p className="text-sm text-white">{profile.description}</p>
+              <div className="pt-3 border-t border-zinc-800">
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Descripción</p>
+                <p className="text-sm text-zinc-300 mt-0.5">{profile.description}</p>
               </div>
             )}
           </div>
         ) : (
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
             <p className="text-sm text-amber-400">
-              Completa tu perfil para que el copiloto te de analisis mas relevantes.
+              Completá tu perfil para que el copiloto te dé análisis personalizados.
             </p>
             <Link
               href="/onboarding"
-              className="inline-block mt-3 text-sm font-medium text-indigo-400 hover:text-indigo-300"
+              className="inline-block mt-3 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
             >
-              Completar perfil →
+              Completar perfil &rarr;
             </Link>
           </div>
         )}
       </section>
 
-      {/* Memory section */}
+      {/* Memory section — renamed */}
       <section className="space-y-4 mb-8">
-        <h2 className="text-lg font-semibold text-white">Memoria del agente</h2>
-        <p className="text-sm text-zinc-500">
-          Informacion que el agente guardo de tus conversaciones anteriores
+        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
+          Lo que el copiloto sabe de tu startup
+        </h2>
+        <p className="text-xs text-zinc-500">
+          Información que el agente guardó de tus conversaciones. Podés eliminar cualquier item.
         </p>
-
-        {memories && memories.length > 0 ? (
-          <div className="space-y-2">
-            {memories.map((mem) => (
-              <div
-                key={mem.id}
-                className="rounded-lg border border-zinc-800 p-3"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                    {mem.category}
-                  </span>
-                  <span className="text-xs text-zinc-600">{mem.key}</span>
-                </div>
-                <p className="text-sm text-zinc-300">{mem.summary}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-zinc-600">
-            El agente aun no guardo nada en memoria. Esto se llena automaticamente durante las conversaciones.
-          </p>
-        )}
+        <MemoryPanel memories={memories || []} />
       </section>
 
       {/* Integrations section */}
       <section className="space-y-4 mb-8">
-        <h2 className="text-lg font-semibold text-white">Integraciones</h2>
-        <p className="text-sm text-zinc-500">
-          Conecta tus herramientas para exportar artefactos directamente desde el chat
+        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Integraciones</h2>
+        <p className="text-xs text-zinc-500">
+          Conectá tus herramientas para exportar artefactos directamente desde el chat.
         </p>
         <IntegrationsPanel />
       </section>
 
       {/* Account section */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Cuenta</h2>
-        <div className="rounded-xl border border-zinc-800 p-5">
-          <p className="text-xs text-zinc-500">Email</p>
-          <p className="text-sm text-white">{user?.email}</p>
+        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Cuenta</h2>
+        <div className="rounded-xl border border-zinc-800 p-5 space-y-3">
+          <div>
+            <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Email</p>
+            <p className="text-sm text-white mt-0.5">{user?.email}</p>
+          </div>
         </div>
       </section>
     </div>

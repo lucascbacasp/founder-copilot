@@ -3,19 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-
-const TYPE_LABELS: Record<string, string> = {
-  bmc: 'Business Model Canvas',
-  scorecard: 'Scorecard de Inversibilidad',
-  financial_model: 'Modelo Financiero',
-  experiment_roadmap: 'Roadmap de Experimentos',
-  competitor_map: 'Mapa de Competidores',
-  pitch_outline: 'Outline de Pitch',
-  funding_map: 'Mapa de Oportunidades',
-  adapted_pitch: 'Pitch Adaptado',
-  investor_deck: 'Deck para Inversores',
-  challenge_scorecard: 'Challenge Scorecard',
-};
+import { ARTIFACT_TYPE_LABELS } from '@/lib/constants/artifact-types';
 
 interface Artifact {
   id: string;
@@ -79,7 +67,7 @@ export default function ArtifactDetailPage() {
 
       <div className="mb-4 flex items-center gap-3">
         <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-400">
-          {TYPE_LABELS[artifact.type] || artifact.type}
+          {ARTIFACT_TYPE_LABELS[artifact.type] || artifact.type}
         </span>
         <span className="text-xs text-zinc-500">
           {new Date(artifact.created_at).toLocaleDateString('es-AR', {

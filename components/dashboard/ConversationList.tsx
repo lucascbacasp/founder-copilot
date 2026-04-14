@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { MODE_LABELS, MODE_COLORS } from '@/lib/constants/artifact-types';
 
 interface Conversation {
   id: string;
@@ -11,22 +12,13 @@ interface Conversation {
   updated_at: string;
 }
 
-const MODE_LABELS: Record<string, string> = {
+const MODE_SHORT: Record<string, string> = {
   diagnostico: 'D',
   financiero: 'F',
   pitch: 'P',
   qa: 'Q',
   latam: 'L',
   challenge: 'C',
-};
-
-const MODE_COLORS: Record<string, string> = {
-  diagnostico: 'bg-blue-500/20 text-blue-400',
-  financiero: 'bg-green-500/20 text-green-400',
-  pitch: 'bg-purple-500/20 text-purple-400',
-  qa: 'bg-orange-500/20 text-orange-400',
-  latam: 'bg-teal-500/20 text-teal-400',
-  challenge: 'bg-red-500/20 text-red-400',
 };
 
 export function ConversationList({ conversations }: { conversations: Conversation[] }) {
@@ -59,10 +51,10 @@ export function ConversationList({ conversations }: { conversations: Conversatio
                   MODE_COLORS[conv.mode] || 'bg-zinc-700 text-zinc-400'
                 )}
               >
-                {MODE_LABELS[conv.mode] || '?'}
+                {MODE_SHORT[conv.mode] || '?'}
               </span>
               <span className="truncate">
-                {conv.title || 'Sin titulo'}
+                {conv.title || 'Sin título'}
               </span>
             </Link>
           );
