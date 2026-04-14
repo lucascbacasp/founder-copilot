@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function ArtifactsPage() {
@@ -12,11 +13,14 @@ export default async function ArtifactsPage() {
 
   const typeLabels: Record<string, string> = {
     bmc: 'Business Model Canvas',
-    scorecard: 'Scorecard',
+    scorecard: 'Scorecard de Inversibilidad',
     financial_model: 'Modelo Financiero',
     experiment_roadmap: 'Roadmap de Experimentos',
     competitor_map: 'Mapa de Competidores',
     pitch_outline: 'Outline de Pitch',
+    funding_map: 'Mapa de Oportunidades',
+    adapted_pitch: 'Pitch Adaptado',
+    investor_deck: 'Deck para Inversores',
   };
 
   return (
@@ -26,9 +30,10 @@ export default async function ArtifactsPage() {
       {artifacts && artifacts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {artifacts.map((artifact) => (
-            <div
+            <Link
               key={artifact.id}
-              className="rounded-xl border border-zinc-800 p-5 hover:bg-zinc-800/50 transition-colors"
+              href={`/artifacts/${artifact.id}`}
+              className="rounded-xl border border-zinc-800 p-5 hover:bg-zinc-800/50 hover:border-zinc-700 transition-colors cursor-pointer block"
             >
               <p className="text-xs font-medium text-indigo-400 uppercase">
                 {typeLabels[artifact.type] || artifact.type}
@@ -41,7 +46,7 @@ export default async function ArtifactsPage() {
                   year: 'numeric',
                 })}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

@@ -1,9 +1,12 @@
 'use client';
 
+import Link from 'next/link';
+
 interface ArtifactCardProps {
   type: string;
   title: string;
   content: Record<string, unknown>;
+  artifactId?: string;
 }
 
 const TYPE_INFO: Record<string, { label: string; icon: string }> = {
@@ -18,7 +21,7 @@ const TYPE_INFO: Record<string, { label: string; icon: string }> = {
   investor_deck: { label: 'Deck para Inversores', icon: 'rocket' },
 };
 
-export function ArtifactCard({ type, title, content }: ArtifactCardProps) {
+export function ArtifactCard({ type, title, content, artifactId }: ArtifactCardProps) {
   const info = TYPE_INFO[type] || { label: type, icon: 'doc' };
 
   // Render a summary based on type
@@ -248,15 +251,24 @@ export function ArtifactCard({ type, title, content }: ArtifactCardProps) {
     }
   }
 
-  return (
-    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 my-2 max-w-[80%]">
+  const card = (
+    <div className={`rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 my-2 max-w-[80%] ${artifactId ? 'hover:bg-indigo-500/10 hover:border-indigo-500/50 transition-colors cursor-pointer' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">
           {info.label}
         </span>
+        {artifactId && (
+          <span className="text-[10px] text-zinc-500 ml-auto">Ver detalle &rarr;</span>
+        )}
       </div>
       <p className="text-sm font-medium text-white mb-2">{title}</p>
       {renderSummary()}
     </div>
   );
+
+  if (artifactId) {
+    return <Link href={`/artifacts/${artifactId}`}>{card}</Link>;
+  }
+
+  return card;
 }

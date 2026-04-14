@@ -63,14 +63,9 @@ export async function* runAgentLoop(
 
     // Case 2: Claude wants to use tools
     if (response.stop_reason === 'tool_use') {
-      // Emit any partial text
-      const textBlocks = response.content.filter(
-        (b): b is Anthropic.TextBlock => b.type === 'text'
-      );
-      const partialText = textBlocks.map((b) => b.text).join('');
-      if (partialText) {
-        yield { type: 'text', content: partialText };
-      }
+      // Suppress intermediate text between tool calls — this is just
+      // "thinking out loud" text like "Ejecutando análisis..." that
+      // clutters the chat. Only the final end_turn text gets shown.
 
       // Add assistant turn to history
       messages.push({ role: 'assistant', content: response.content });

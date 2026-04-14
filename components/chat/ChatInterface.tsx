@@ -19,6 +19,7 @@ interface ToolEvent {
 
 interface ArtifactEvent {
   type: 'artifact';
+  artifactId?: string;
   artifactType: string;
   title: string;
   content: Record<string, unknown>;
@@ -36,12 +37,13 @@ interface ChatInterfaceProps {
   conversationId?: string;
   initialMode?: Mode;
   initialMessages?: ChatMessage[];
+  initialItems?: ChatItem[];
   journeyStep?: string;
 }
 
-export function ChatInterface({ conversationId, initialMode, initialMessages = [], journeyStep }: ChatInterfaceProps) {
+export function ChatInterface({ conversationId, initialMode, initialMessages = [], initialItems, journeyStep }: ChatInterfaceProps) {
   const [mode, setMode] = useState<Mode | null>(initialMode || null);
-  const [items, setItems] = useState<ChatItem[]>(initialMessages);
+  const [items, setItems] = useState<ChatItem[]>(initialItems || initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(conversationId || null);
@@ -258,7 +260,7 @@ export function ChatInterface({ conversationId, initialMode, initialMessages = [
           if (item.type === 'artifact') {
             return (
               <div key={i} className="flex justify-start">
-                <ArtifactCard type={item.artifactType} title={item.title} content={item.content} />
+                <ArtifactCard type={item.artifactType} title={item.title} content={item.content} artifactId={item.artifactId} />
               </div>
             );
           }
