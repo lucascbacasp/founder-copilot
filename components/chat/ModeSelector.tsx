@@ -5,11 +5,11 @@ import clsx from 'clsx';
 export type Mode = 'diagnostico' | 'financiero' | 'pitch' | 'qa' | 'latam';
 
 const MODES: { id: Mode; label: string; description: string }[] = [
-  { id: 'diagnostico', label: 'Diagnostico', description: 'Evalua tu idea y problem-solution fit' },
-  { id: 'financiero', label: 'Financiero', description: 'Analiza unit economics y modelo de negocio' },
-  { id: 'pitch', label: 'Pitch', description: 'Prepara y mejora tu pitch deck' },
-  { id: 'qa', label: 'Q&A Analista', description: 'Simulacion de due diligence con un VC' },
-  { id: 'latam', label: 'Expansion LATAM', description: 'Estrategia de expansion regional' },
+  { id: 'diagnostico', label: 'Diagnóstico', description: 'Evaluá tu idea y problem-solution fit' },
+  { id: 'financiero', label: 'Financiero', description: 'Analizá unit economics y modelo de negocio' },
+  { id: 'pitch', label: 'Pitch', description: 'Prepará y mejorá tu pitch deck' },
+  { id: 'qa', label: 'Q&A Analista', description: 'Simulación de due diligence con un VC' },
+  { id: 'latam', label: 'Expansión LATAM', description: 'Estrategia de expansión regional' },
 ];
 
 interface ModeSelectorProps {

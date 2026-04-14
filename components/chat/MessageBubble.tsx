@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import ReactMarkdown from 'react-markdown';
 
 interface MessageBubbleProps {
   role: 'user' | 'assistant';
@@ -23,7 +24,13 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
             : 'bg-zinc-800 text-zinc-100'
         )}
       >
-        <div className="whitespace-pre-wrap">{content}</div>
+        {role === 'user' ? (
+          <div className="whitespace-pre-wrap">{content}</div>
+        ) : (
+          <div className="prose prose-invert prose-sm max-w-none prose-p:my-1.5 prose-li:my-0.5 prose-headings:mt-3 prose-headings:mb-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-strong:text-white prose-a:text-indigo-400">
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
+        )}
       </div>
     </div>
   );

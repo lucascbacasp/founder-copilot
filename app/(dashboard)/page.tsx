@@ -46,7 +46,7 @@ export default async function DashboardPage() {
             : 'Bienvenido'}
         </h1>
         <p className="text-zinc-400 mt-1">
-          Segui el camino para validar y preparar tu startup para inversores
+          Seguí el camino para validar y preparar tu startup para inversores
         </p>
       </div>
 

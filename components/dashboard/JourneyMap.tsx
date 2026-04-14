@@ -20,9 +20,9 @@ const JOURNEY_STEPS: JourneyStep[] = [
     id: 'diagnostico',
     mode: 'diagnostico',
     number: 1,
-    title: 'Diagnostico',
-    subtitle: 'Valida tu problema',
-    description: 'Evalua si tu idea resuelve un problema real con mercado suficiente. Sin esto, todo lo demas es humo.',
+    title: 'Diagnóstico',
+    subtitle: 'Validá tu problema',
+    description: 'Evaluá si tu idea resuelve un problema real con mercado suficiente. Sin esto, todo lo demás es humo.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -35,8 +35,8 @@ const JOURNEY_STEPS: JourneyStep[] = [
     mode: 'financiero',
     number: 2,
     title: 'Financiero',
-    subtitle: 'Proba los numeros',
-    description: 'Analiza unit economics, modelo de revenue y benchmarks LATAM. Los inversores quieren ver que el negocio cierra.',
+    subtitle: 'Probá los números',
+    description: 'Analizá unit economics, modelo de revenue y benchmarks LATAM. Los inversores quieren ver que el negocio cierra.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -50,13 +50,13 @@ const JOURNEY_STEPS: JourneyStep[] = [
     number: 3,
     title: 'Pitch',
     subtitle: 'Arma tu narrativa',
-    description: 'Construi dos pitch decks: uno para inversores (con ask de capital, equity y valuacion) y otro adaptado a la mejor oportunidad de funding no-dilutivo.',
+    description: 'Construí dos pitch decks: uno para inversores (con ask de capital, equity y valuación) y otro adaptado a la mejor oportunidad de funding no-dilutivo.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4V2m0 2a2 2 0 012 2v1a2 2 0 01-2 2 2 2 0 01-2-2V6a2 2 0 012-2zm0 10v2m0-2a2 2 0 00-2-2H4a2 2 0 00-2 2v1a2 2 0 002 2h1a2 2 0 002-2zm10-10V2m0 2a2 2 0 012 2v1a2 2 0 01-2 2 2 2 0 01-2-2V6a2 2 0 012-2z" />
       </svg>
     ),
-    deliverables: ['Investor deck (ask + equity + valuacion)', 'Mapa de oportunidades de funding', 'Pitch adaptado a la mejor oportunidad'],
+    deliverables: ['Investor deck (ask + equity + valuación)', 'Mapa de oportunidades de funding', 'Pitch adaptado a la mejor oportunidad'],
   },
   {
     id: 'qa',
@@ -70,21 +70,21 @@ const JOURNEY_STEPS: JourneyStep[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    deliverables: ['Score de preparacion (1-10)', 'Top 3 puntos debiles identificados'],
+    deliverables: ['Score de preparación (1-10)', 'Top 3 puntos débiles identificados'],
   },
   {
     id: 'funding',
     mode: 'latam',
     number: 5,
     title: 'Funding',
-    subtitle: 'Consegui recursos',
-    description: 'Busca hackathons, grants, aceleradoras y oportunidades de fondeo. Genera un pitch adaptado a la mejor oportunidad.',
+    subtitle: 'Conseguí recursos',
+    description: 'Buscá hackathons, grants, aceleradoras y oportunidades de fondeo. Generá un pitch adaptado a la mejor oportunidad.',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
     ),
-    deliverables: ['Mapa de oportunidades', 'Pitch adaptado', 'Estrategia de expansion LATAM'],
+    deliverables: ['Mapa de oportunidades', 'Pitch adaptado', 'Estrategia de expansión LATAM'],
   },
 ];
 
@@ -176,25 +176,29 @@ export function JourneyMap({ completedModes: initialCompletedModes, journeyProgr
     router.push(`/chat?mode=${step.mode}&journey=${step.id}`);
   }
 
-  // Calculate overall progress
+  // Calculate overall progress — skipped steps count as progress
   const totalSteps = JOURNEY_STEPS.length;
   const doneCount = JOURNEY_STEPS.filter(
     (s) => progress.completed.includes(s.id) || completedModes.has(s.mode)
   ).length;
-  const progressPercent = Math.round((doneCount / totalSteps) * 100);
+  const skippedCount = JOURNEY_STEPS.filter(
+    (s) => progress.skipped.includes(s.id) && !progress.completed.includes(s.id) && !completedModes.has(s.mode)
+  ).length;
+  const advancedCount = doneCount + skippedCount;
+  const progressPercent = Math.round((advancedCount / totalSteps) * 100);
 
   return (
     <div className="space-y-6">
       {/* Progress header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-white">Tu camino de validacion</h2>
+          <h2 className="text-lg font-semibold text-white">Tu camino de validación</h2>
           <p className="text-sm text-zinc-400 mt-0.5">
-            {doneCount === 0
-              ? 'Empeza por validar tu idea'
-              : doneCount === totalSteps
-                ? 'Completaste todas las etapas!'
-                : `${doneCount} de ${totalSteps} etapas completadas`}
+            {advancedCount === 0
+              ? 'Empezá por validar tu idea'
+              : advancedCount === totalSteps
+                ? doneCount === totalSteps ? '¡Completaste todas las etapas!' : `${doneCount} completadas, ${skippedCount} salteadas`
+                : `${doneCount} de ${totalSteps} completadas${skippedCount > 0 ? `, ${skippedCount} salteadas` : ''}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
