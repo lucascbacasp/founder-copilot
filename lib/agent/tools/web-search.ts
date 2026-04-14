@@ -1,6 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { braveSearch, formatResults } from './brave-search';
 
 export interface WebSearchInput {
   query: string;
@@ -8,35 +6,31 @@ export interface WebSearchInput {
   region?: string;
 }
 
+const REGION_COUNTRY: Record<string, string> = {
+  argentina: 'AR',
+  mexico: 'MX',
+  colombia: 'CO',
+  brasil: 'BR',
+  chile: 'CL',
+};
+
 export async function executeWebSearch(input: WebSearchInput): Promise<string> {
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305' as const, name: 'web_search', max_uses: 3 }],
-      messages: [
-        {
-          role: 'user',
-          content: `Busca informacion sobre: ${input.query}
-Enfoque: ${input.focus}
-Region: ${input.region || 'latam'}
+    const regionSuffix = input.region && input.region !== 'global'
+      ? ` ${input.region}`
+      : '';
+    const query = `${input.query} ${input.focus}${regionSuffix}`;
+    const country = input.region ? REGION_COUNTRY[input.region] : undefined;
 
-Devuelve un resumen estructurado con:
-1. Datos clave encontrados
-2. Competidores identificados (si aplica)
-3. Tamaño de mercado o traccion (si aplica)
-4. Fuentes principales`,
-        },
-      ],
-    });
+    const results = await braveSearch(query, 8, country);
+    const formatted = formatResults(results);
 
-    // Extract text from response, ignoring tool_use blocks
-    const textBlocks = response.content.filter(
-      (b): b is Anthropic.TextBlock => b.type === 'text'
-    );
-    return textBlocks.map((b) => b.text).join('\n') || 'Sin resultados relevantes.';
+    return `## Resultados de búsqueda: ${input.query}
+**Enfoque:** ${input.focus} | **Región:** ${input.region || 'global'}
+
+${formatted}`;
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Error desconocido';
-    return `Error en busqueda: ${msg}`;
+    return `Error en búsqueda: ${msg}`;
   }
 }
